@@ -1,0 +1,357 @@
+@import "tailwindcss";
+
+@theme {
+  /* Surface */
+  --color-ink: #050505;
+  --color-ink-raised: #0a0a0a;
+  --color-surface: #101010;
+  --color-line: #292929;
+  --color-line-soft: #1a1a1a;
+
+  /* Ink */
+  --color-paper: #f2f2f0;
+  --color-muted: #a0a0a0;
+  --color-dim: #7d7d7d;
+
+  /* Type */
+  --font-display: var(--font-archivo), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --tracking-meta: 0.16em;
+}
+
+@layer base {
+  :root {
+    --header-h: 4.25rem;
+    color-scheme: dark;
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --header-h: 4.5rem;
+    }
+  }
+
+  html {
+    background-color: var(--color-ink);
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-h) + 1px);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    overflow-x: clip;
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    font-family: var(--font-display);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-paper);
+    outline-offset: 4px;
+  }
+
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scrollbar-color: #2e2e2e var(--color-ink);
+    scrollbar-width: thin;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-ink);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #262626;
+    border: 3px solid var(--color-ink);
+  }
+}
+
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: 105rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .shell {
+      padding-inline: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .shell {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  /* Small technical label set */
+  .meta {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    line-height: 1.45;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  /* Oversized editorial headline */
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 12.2vw, 11.5rem);
+    font-weight: 500;
+    line-height: 0.84;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    text-shadow: 0 2px 40px rgba(5, 5, 5, 0.35);
+  }
+
+  .hero-title .line {
+    display: block;
+    padding-right: 0.04em;
+  }
+
+  /* Outlined second line */
+  .outline-type {
+    color: transparent;
+    -webkit-text-stroke-width: clamp(1px, 0.018em, 2.5px);
+    -webkit-text-stroke-color: rgba(242, 242, 240, 0.82);
+  }
+
+  /* Text reveal masking */
+  .line-mask {
+    display: block;
+    overflow: hidden;
+    padding-block: 0.07em;
+    margin-block: -0.07em;
+  }
+
+  .line-mask > .line {
+    animation: line-rise 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--reveal-delay, 0ms);
+    will-change: transform;
+  }
+
+  .reveal {
+    animation: fade-up 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+
+  /* Restrained underline for text links */
+  .link-line {
+    position: relative;
+    display: inline-block;
+  }
+
+  .link-line::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.2em;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .link-line:hover::after,
+  .link-line:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* Same underline, with a comfortable pointer/touch target */
+  .nav-link {
+    position: relative;
+    display: inline-flex;
+    min-height: 2rem;
+    align-items: center;
+  }
+
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.25rem;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .nav-link:hover::after,
+  .nav-link:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* Vertical scroll indicator */
+  .scroll-track {
+    position: relative;
+    display: inline-block;
+    width: 1px;
+    height: 2.25rem;
+    overflow: hidden;
+    background: var(--color-line);
+  }
+
+  .scroll-track::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 45%;
+    background: var(--color-paper);
+    animation: scroll-cue 2.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+
+  /* Film grain */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    pointer-events: none;
+    opacity: 0.055;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+  }
+
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    transform: translateY(-250%);
+    border: 1px solid var(--color-line);
+    background: var(--color-ink);
+    padding: 0.75rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-paper);
+    transition: transform 0.2s ease;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+}
+
+@keyframes line-rise {
+  from {
+    transform: translate3d(0, 112%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/*
+ * Scroll-linked reveals.
+ * Only active where scroll-driven animations are supported, so the content is
+ * always visible in browsers that do not implement them. Reduced motion is
+ * left untouched.
+ */
+@keyframes scroll-reveal-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-reveal {
+      animation: scroll-reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 4% entry 52%;
+    }
+  }
+}
+
+@keyframes scroll-cue {
+  0% {
+    transform: translateY(-120%);
+  }
+  70%,
+  100% {
+    transform: translateY(240%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .line-mask > .line,
+  .reveal {
+    animation: none !important;
+  }
+
+  .scroll-track::after {
+    animation: none !important;
+    transform: translateY(8px);
+    opacity: 0.6;
+  }
+}
+
+@supports not (-webkit-text-stroke: 1px #ffffff) {
+  .outline-type {
+    color: var(--color-paper);
+  }
+}
+
+@media (forced-colors: active) {
+  .outline-type {
+    color: CanvasText;
+    -webkit-text-stroke-width: 0;
+  }
+}
