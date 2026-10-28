@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { ActionLink } from "@/components/ui/ActionLink";
-import { ArrowUpRight } from "@/components/ui/icons";
+import { ExternalLink, Github } from "@/components/ui/icons";
 import { SectionIntro } from "@/components/ui/SectionIntro";
 import {
   secondaryProjects,
@@ -45,7 +45,7 @@ function PreviewFrame({ project, index }: { project: ShowcaseProject; index: num
             aria-hidden="true"
             className="pointer-events-none absolute right-3 top-3 grid size-8 place-items-center border border-paper/30 bg-ink/50 text-paper opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
           >
-            <ArrowUpRight />
+            <ExternalLink aria-hidden="true" />
           </span>
         </div>
       </a>
@@ -67,18 +67,18 @@ function ProjectActions({ project }: { project: ShowcaseProject }) {
           external
           size="compact"
           variant="solid"
-          icon={<ArrowUpRight />}
+          icon={<ExternalLink aria-hidden="true" />}
         >
-          Live site
+          Visit site
         </ActionLink>
       ) : null}
       <ActionLink
         href={project.repoUrl}
         external
         size="compact"
-        icon={<ArrowUpRight />}
+        icon={<Github aria-hidden="true" />}
       >
-        GitHub
+        Source code
       </ActionLink>
     </div>
   );
@@ -217,7 +217,7 @@ export function SelectedWork() {
                   </div>
                   <span className="meta flex items-center gap-3 sm:justify-end">
                     {project.status}
-                    <ArrowUpRight className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    <Github className="size-4 transition-transform duration-300 group-hover:scale-110" />
                   </span>
                 </a>
               </li>

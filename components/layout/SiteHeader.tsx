@@ -1,11 +1,13 @@
+import Link from "next/link";
+import { Download } from "@/components/ui/icons";
 import { navLinks, profile } from "@/lib/content/site";
 
 export function SiteHeader() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-line/60 bg-ink/70 backdrop-blur-md">
       <div className="shell flex h-[var(--header-h)] items-center justify-between gap-6">
-        <a
-          href="#top"
+        <Link
+          href="/"
           className="group flex items-center gap-3"
           aria-label={`${profile.name} — back to top`}
         >
@@ -17,16 +19,24 @@ export function SiteHeader() {
               {profile.name}
             </span>
             <span className="font-mono text-[9px] uppercase leading-none tracking-[0.14em] text-dim">
-              AI tools / software
+              Websites / software
             </span>
           </span>
-        </a>
+        </Link>
 
         <nav aria-label="Primary">
-          <ul className="flex items-center gap-6 sm:gap-9">
+          <ul className="flex items-center gap-5 sm:gap-8">
+            <li>
+              <Link
+                href="/"
+                className="nav-link font-mono text-[10px] uppercase tracking-[0.18em] text-muted transition-colors duration-300 hover:text-paper focus-visible:text-paper"
+              >
+                Home
+              </Link>
+            </li>
             {navLinks.map((link, index) => (
               <li key={link.href}>
-                <a
+                <Link
                   href={link.href}
                   className="nav-link font-mono text-[10px] uppercase tracking-[0.18em] text-muted transition-colors duration-300 hover:text-paper focus-visible:text-paper"
                 >
@@ -34,9 +44,19 @@ export function SiteHeader() {
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   {link.label}
-                </a>
+                </Link>
               </li>
             ))}
+            <li className="hidden md:block">
+              <a
+                href={profile.resume.publicPath}
+                download={profile.resume.downloadName}
+                className="nav-link inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted transition-colors duration-300 hover:text-paper"
+              >
+                <Download aria-hidden="true" className="size-3.5" />
+                Resume
+              </a>
+            </li>
           </ul>
         </nav>
       </div>

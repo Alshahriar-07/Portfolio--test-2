@@ -1,8 +1,8 @@
 # Al Shahriar Sowan — Portfolio
 
-An experimental monochrome editorial portfolio for **Al Shahriar Sowan**, AI tools &
-software developer. Built with Next.js (App Router), TypeScript, Tailwind CSS v4, and a
-custom React Three Fiber sculpture.
+A monochrome editorial portfolio for **Al Shahriar Sowan**, focused on websites and software.
+Built with Next.js (App Router), TypeScript, and Tailwind CSS v4. The hero is typography-led;
+contact submissions use Web3Forms when configured.
 
 ## Run
 
@@ -26,7 +26,7 @@ npm run typecheck
 from `assets/Al_Shahriar_Sowan_Resume_Professional...pdf` and checked against the live project
 sites and public repositories in October 2026.
 
-- Name, professional title, availability, location, email
+- Name, professional title, availability, email
 - GitHub, LinkedIn, portfolio links
 - Professional summary and biography
 - Skills groups, work experience, education
@@ -36,8 +36,8 @@ sites and public repositories in October 2026.
 
 ### Source conflicts recorded
 
-- The resume title is **Junior AI Tools & Software Developer**; the site displays the shorter
-  **AI Tools & Software Developer** as a public label while keeping "junior" in the copy.
+- The resume title is **Junior AI Tools & Software Developer**. The hero leads with
+  **Websites & Software**, while the profile reflects broader project experience accurately.
 - The resume notes the alternate spelling **Al Shahriar Sayon**; the site uses **Al Shahriar
   Sowan**.
 - The resume lists Seed Code CLI **v8.2.5**, while the public repository and installer page
@@ -47,8 +47,7 @@ sites and public repositories in October 2026.
   framework claim for that project.
 - The resume's 987-test figure is not printed, since it refers to an older CLI version.
 
-The phone number in the PDF is intentionally not published. The full street-level address is
-not published either; the site uses Gazipur, Bangladesh.
+The phone number and personal address in the PDF are intentionally not published.
 
 ## Assets
 
@@ -58,23 +57,28 @@ not published either; the site uses Gazipur, Bangladesh.
 | Downloadable resume | `public/Al-Shahriar-Sowan-Resume.pdf` | Byte-identical copy |
 | Portrait | `assets/me.png` | Original preserved; served copy at `public/assets/me.png` |
 | Project previews | `public/projects/*.webp` | Captured from the live project interfaces, Oct 2026 |
-| Favicon | `app/icon.svg` | Monogram |
+| Browser favicon | `app/favicon.ico` | Supplied multi-size ICO, served by Next.js |
+| PNG favicons | `public/icons/favicon-*.png` | Supplied 16, 32, and 48 px assets, referenced in metadata |
+| App icons | `public/icons/icon-192.png`, `public/icons/icon-512.png` | Supplied assets |
+| Apple touch icon | `app/apple-icon.png` | Supplied 180 px asset, served by Next.js |
+| App icon | `app/icon.png` | Supplied 192 px icon, served by Next.js |
 
 The hero download action points at `/Al-Shahriar-Sowan-Resume.pdf` with the
 `download="Al-Shahriar-Sowan-Resume.pdf"` attribute.
 
 ## Sections
 
-1. **Hero** — editorial headline, procedural 3D sculpture, metadata, resume download.
-2. **Selected work** — four project features with real interface captures, status, facts,
-   live links and repository links, plus secondary projects.
-3. **About** — the supplied B&W portrait as a print-style composition, biography, facts and
-   actions.
-4. **Expertise** — four evidence-based categories from the resume, no scores or skill bars.
-5. **Experience** — contract deployment role, independent practice, and education.
-6. **Eagox Studio** — independent studio statement, studio-site link, published products.
-7. **Contact** — email, GitHub, LinkedIn, resume, location and availability.
-8. **Footer** — site index and secondary links.
+1. **Hero** — oversized two-line Websites & Software headline and resume download; no 3D/WebGL scene.
+2. **Selected products** — three concise homepage previews leading to `/products`.
+3. **Products** — four featured projects with real interface captures, verified status, facts,
+   live links and repository links, plus Eagox Studio and secondary projects.
+4. **About** — the supplied transparent B&W portrait on white, biography, facts and actions.
+5. **Expertise** — four evidence-based categories from the resume, no scores or skill bars.
+6. **Experience** — contract deployment role, independent practice, and education.
+7. **Eagox Studio** — independent studio statement, studio-site link, published products.
+8. **Contact** — email, GitHub, LinkedIn, resume and availability.
+9. **Footer** — site index and secondary links.
+10. **Contact page** — accessible validated Web3Forms contact form and verified contact destinations.
 
 Project links verified October 2026:
 
@@ -92,15 +96,14 @@ see the full grayscale preview without needing hover.
 
 ## Motion
 
-- Hero text reveal and sculpture rotation respect `prefers-reduced-motion`.
+- Hero uses typography and negative space instead of a 3D scene or WebGL.
+- Animations respect `prefers-reduced-motion`.
 - Section enter reveals use CSS scroll-driven animations, wrapped in
   `@supports (animation-timeline: view())`; content is static and visible where unsupported.
 - No animation library was added.
 
-## Remaining for stage 3
+The homepage, Products page, and Contact page include page-specific metadata and canonical URLs. Supplied ICO and PNG assets use Next.js icon routes plus metadata links for the small PNG variants. The portrait and downloadable resume are byte-identical copies of their originals.
 
-- Final visual polish and any approved copy changes
-- Open Graph / social image and final metadata review
-- Accessibility audit (focus order, contrast, reduced motion, screen reader pass)
-- Performance pass and production deployment testing
-- Replace any deliberately deferred project detail if new verified material is supplied
+### Contact form configuration
+
+The Contact page posts `FormData` to the Web3Forms endpoint. Set `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` in the deployment environment (see `.env.example`) with an access key created for the intended inbox at https://web3forms.com/. Without it, the form shows a configuration error and does not report success. No recipient or key is hardcoded.

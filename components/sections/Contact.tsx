@@ -1,4 +1,5 @@
-import { ArrowUpRight } from "@/components/ui/icons";
+import Link from "next/link";
+import { Download, Github, Linkedin, Mail } from "@/components/ui/icons";
 import { profile } from "@/lib/content/site";
 
 export function Contact() {
@@ -25,18 +26,25 @@ export function Contact() {
             </h2>
 
             <a
-              href={`mailto:${profile.email}`}
-              className="group mt-12 flex flex-col gap-6 border-y border-line/60 py-8 transition-colors duration-300 hover:bg-paper/[0.02] md:flex-row md:items-center md:justify-between md:gap-8"
-              aria-label={`Email ${profile.name} at ${profile.email}`}
+              href="/contact"
+              className="group mt-12 flex flex-col gap-6 border-y border-line/60 py-8 transition-colors duration-300 hover:bg-paper/[0.02] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper md:flex-row md:items-center md:justify-between md:gap-8"
+              aria-label={`Open contact page to message ${profile.name}`}
             >
-              <span className="break-all font-display text-[clamp(1rem,3.2vw,1.9rem)] leading-tight tracking-[-0.02em] text-paper">
-                {profile.email}
+              <span className="font-display text-[clamp(1.2rem,3.2vw,1.9rem)] leading-tight tracking-[-0.02em] text-paper">
+                Get in touch
               </span>
               <span className="inline-flex h-11 shrink-0 items-center gap-3 border border-paper px-5 font-mono text-[10px] uppercase tracking-[0.18em] text-paper transition-colors duration-300 group-hover:bg-paper group-hover:text-ink">
+                <Mail aria-hidden="true" className="size-4" />
                 Email me
-                <ArrowUpRight />
               </span>
             </a>
+
+            <div className="mt-6">
+              <Link href="/contact" className="inline-flex min-h-11 items-center gap-3 border border-line px-5 font-mono text-[10px] uppercase tracking-[0.18em] text-paper transition-colors hover:border-paper/60 hover:bg-paper/[0.04] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paper">
+                <Mail aria-hidden="true" className="size-4" />
+                Use the contact form
+              </Link>
+            </div>
 
             <div className="grid gap-8 py-8 sm:grid-cols-3 sm:gap-6">
               <div>
@@ -49,8 +57,8 @@ export function Contact() {
                       rel="noreferrer noopener"
                       className="group inline-flex items-center gap-2 text-sm text-paper transition-colors duration-300 hover:text-muted"
                     >
+                      <Github aria-hidden="true" className="size-4" />
                       GitHub
-                      <ArrowUpRight className="size-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                     </a>
                   </li>
                   <li>
@@ -60,16 +68,17 @@ export function Contact() {
                       rel="noreferrer noopener"
                       className="group inline-flex items-center gap-2 text-sm text-paper transition-colors duration-300 hover:text-muted"
                     >
+                      <Linkedin aria-hidden="true" className="size-4" />
                       LinkedIn
-                      <ArrowUpRight className="size-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                     </a>
                   </li>
                   <li>
                     <a
                       href={profile.resume.publicPath}
                       download={profile.resume.downloadName}
-                      className="text-sm text-paper transition-colors duration-300 hover:text-muted"
+                      className="inline-flex items-center gap-2 text-sm text-paper transition-colors duration-300 hover:text-muted"
                     >
+                      <Download aria-hidden="true" className="size-4" />
                       Resume — PDF
                     </a>
                   </li>
@@ -77,8 +86,8 @@ export function Contact() {
               </div>
 
               <div>
-                <p className="meta">Based in</p>
-                <p className="mt-3 text-sm leading-relaxed text-paper">{profile.location.short}</p>
+                <p className="meta">Focus</p>
+                <p className="mt-3 text-sm leading-relaxed text-paper">AI tools, websites &amp; software</p>
               </div>
 
               <div>

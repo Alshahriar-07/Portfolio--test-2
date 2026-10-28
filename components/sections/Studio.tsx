@@ -1,5 +1,5 @@
 import { ActionLink } from "@/components/ui/ActionLink";
-import { ArrowUpRight } from "@/components/ui/icons";
+import { ExternalLink } from "@/components/ui/icons";
 import { showcaseProjects, studio } from "@/lib/content/site";
 
 export function Studio() {
@@ -33,7 +33,7 @@ export function Studio() {
                   <ActionLink
                     href={studio.url}
                     external
-                    icon={<ArrowUpRight />}
+                    icon={<ExternalLink aria-hidden="true" />}
                     className="sm:w-auto"
                   >
                     Visit the studio site

@@ -1,284 +1,290 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import * as THREE from "three";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { useEffect, useRef } from "react";
+import type * as ThreeNamespace from "three";
 
-type HeroSculptureProps = {
-  reducedMotion: boolean;
-  onReady: () => void;
-};
+type Point = [number, number, number];
+type Triangle = [number, number, number];
 
-/**
- * Hexagonal frame built from a hexagon with a hexagon hole.
- * Three of these cross the core like an armillary structure.
- */
-function useHexFrame(outer: number, inner: number, depth: number) {
-  return useMemo(() => {
-    const points = (radius: number) =>
-      Array.from({ length: 6 }, (_, index) => {
-        const angle = (Math.PI / 3) * index - Math.PI / 6;
-        return [Math.cos(angle) * radius, Math.sin(angle) * radius] as const;
-      });
+const materials = ["#171717", "#292929", "#414141", "#626262", "#858585", "#aaaaaa"];
+const basePoints: Point[] = [
+  [-1, 1.618, 0], [1, 1.618, 0], [-1, -1.618, 0], [1, -1.618, 0],
+  [0, -1, 1.618], [0, 1, 1.618], [0, -1, -1.618], [0, 1, -1.618],
+  [1.618, 0, -1], [1.618, 0, 1], [-1.618, 0, -1], [-1.618, 0, 1],
+];
+const baseFaces: Triangle[] = [
+  [0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11],
+  [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8],
+  [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9],
+  [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1],
+];
 
-    const shape = new THREE.Shape();
-    points(outer).forEach(([x, y], index) => {
-      if (index === 0) shape.moveTo(x, y);
-      else shape.lineTo(x, y);
-    });
-    shape.closePath();
-
-    const hole = new THREE.Path();
-    points(inner)
-      .reverse()
-      .forEach(([x, y], index) => {
-        if (index === 0) hole.moveTo(x, y);
-        else hole.lineTo(x, y);
-      });
-    hole.closePath();
-    shape.holes.push(hole);
-
-    const geometry = new THREE.ExtrudeGeometry(shape, {
-      depth,
-      bevelEnabled: true,
-      bevelThickness: 0.012,
-      bevelSize: 0.012,
-      bevelSegments: 1,
-      curveSegments: 1,
-    });
-    geometry.center();
-    return geometry;
-  }, [outer, inner, depth]);
+function hash(value: number) {
+  const result = Math.sin(value * 127.1 + 311.7) * 43758.5453123;
+  return result - Math.floor(result);
 }
 
-/**
- * Builds a neutral studio reflection map from three's procedural room, so the
- * metal reads correctly without downloading an HDR asset.
- */
-function attachStudioEnvironment(gl: THREE.WebGLRenderer, scene: THREE.Scene) {
-  const pmrem = new THREE.PMREMGenerator(gl);
-  const room = new RoomEnvironment();
-  const environment = pmrem.fromScene(room, 0.04).texture;
-
-  scene.environment = environment;
-
-  return () => {
-    scene.environment = null;
-    environment.dispose();
-    pmrem.dispose();
-    room.traverse((object) => {
-      if (object instanceof THREE.Mesh) {
-        object.geometry.dispose();
-        if (Array.isArray(object.material)) {
-          object.material.forEach((material) => material.dispose());
-        } else {
-          object.material.dispose();
-        }
-      }
-    });
+function makeMesh() {
+  const points = basePoints.map((point) => {
+    const length = Math.hypot(...point);
+    return point.map((coordinate) => coordinate / length) as Point;
+  });
+  let faces = baseFaces.map((face) => [...face] as Triangle);
+  const midpointCache = new Map<string, number>();
+  const midpoint = (a: number, b: number) => {
+    const key = a < b ? `${a}:${b}` : `${b}:${a}`;
+    const cached = midpointCache.get(key);
+    if (cached !== undefined) return cached;
+    const p = points[a].map((value, axis) => (value + points[b][axis]) / 2) as Point;
+    const length = Math.hypot(...p);
+    const index = points.push(p.map((value) => value / length) as Point) - 1;
+    midpointCache.set(key, index);
+    return index;
   };
-}
 
-function StudioEnvironment() {
-  const gl = useThree((state) => state.gl);
-  const scene = useThree((state) => state.scene);
-
-  useEffect(() => attachStudioEnvironment(gl, scene), [gl, scene]);
-
-  return null;
-}
-
-function FirstFrame({ onReady }: { onReady: () => void }) {
-  const fired = useRef(false);
-
-  useFrame(() => {
-    if (fired.current) return;
-    fired.current = true;
-    onReady();
+  faces = faces.flatMap(([a, b, c]) => {
+    const ab = midpoint(a, b);
+    const bc = midpoint(b, c);
+    const ca = midpoint(c, a);
+    return [[a, ab, ca], [b, bc, ab], [c, ca, bc], [ab, bc, ca]] as Triangle[];
   });
 
-  return null;
+  const deformed = points.map(([x, y, z], index) => {
+    const radius = 0.96 + hash(index + 19) * 0.08;
+    const nudge = (offset: number) => (hash(index * 3 + offset) - 0.5) * 0.022;
+    return [x * radius + nudge(1), y * radius + nudge(2), z * radius + nudge(3)] as Point;
+  });
+
+  const tones = faces.map(([a, b, c], index) => {
+    const pa = deformed[a];
+    const pb = deformed[b];
+    const pc = deformed[c];
+    const u: Point = [pb[0] - pa[0], pb[1] - pa[1], pb[2] - pa[2]];
+    const v: Point = [pc[0] - pa[0], pc[1] - pa[1], pc[2] - pa[2]];
+    const normal: Point = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+    const magnitude = Math.hypot(...normal) || 1;
+    const lit = Math.max(0, (normal[0] * -0.38 + normal[1] * 0.82 + normal[2] * 0.48) / magnitude);
+    return Math.max(0, Math.min(materials.length - 1, Math.floor(0.5 + lit * 3.1 + (hash(index + 510) - 0.5) * 2.5)));
+  });
+
+  return { points: deformed, faces, tones };
 }
 
-function Sculpture({ reducedMotion }: { reducedMotion: boolean }) {
-  const groupRef = useRef<THREE.Group>(null);
-  const orbitRef = useRef<THREE.Group>(null);
-  const frameRefs = useRef<Array<THREE.Mesh | null>>([]);
-  const pointer = useRef({ x: 0, y: 0 });
+const mesh = makeMesh();
 
-  const materials = useMemo(
-    () => ({
-      metal: new THREE.MeshStandardMaterial({
-        color: "#d8d8d2",
-        metalness: 0.98,
-        roughness: 0.24,
-        envMapIntensity: 1.25,
-        flatShading: true,
-      }),
-      graphite: new THREE.MeshStandardMaterial({
-        color: "#3a3a3a",
-        metalness: 0.9,
-        roughness: 0.36,
-        envMapIntensity: 1,
-        flatShading: true,
-      }),
-      edge: new THREE.LineBasicMaterial({
-        color: "#a8a8a2",
-        transparent: true,
-        opacity: 0.28,
-      }),
-      hairline: new THREE.MeshBasicMaterial({
-        color: "#d9d9d4",
-        transparent: true,
-        opacity: 0.35,
-      }),
-    }),
-    [],
-  );
+function makeGrainTexture(THREE: typeof ThreeNamespace) {
+  const size = 128;
+  const pixels = new Uint8Array(size * size * 4);
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      const index = (y * size + x) * 4;
+      const broad = hash(Math.floor(x / 12) * 31 + Math.floor(y / 12) * 127) - 0.5;
+      const mid = hash(Math.floor(x / 3) * 17 + Math.floor(y / 3) * 73) - 0.5;
+      const fine = hash(y * size + x) - 0.5;
+      const gray = Math.round(235 + broad * 24 + mid * 12 + fine * 8);
+      pixels[index] = gray;
+      pixels[index + 1] = gray;
+      pixels[index + 2] = gray;
+      pixels[index + 3] = 255;
+    }
+  }
+  const texture = new THREE.DataTexture(pixels, size, size, THREE.RGBAFormat);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(2, 2);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
 
-  const geometries = useMemo(() => {
-    const core = new THREE.IcosahedronGeometry(1.32, 0);
-    const cage = new THREE.IcosahedronGeometry(2.16, 1);
-    return {
-      core,
-      coreEdges: new THREE.EdgesGeometry(core),
-      cage: new THREE.EdgesGeometry(cage),
-      shard: new THREE.TetrahedronGeometry(1, 0),
+function projectedFallback() {
+  const angleY = -0.38;
+  const angleX = -0.2;
+  const projected = mesh.points.map(([x, y, z]) => {
+    const rotatedX = x * Math.cos(angleY) + z * Math.sin(angleY);
+    const rotatedZ = -x * Math.sin(angleY) + z * Math.cos(angleY);
+    const rotatedY = y * Math.cos(angleX) - rotatedZ * Math.sin(angleX);
+    const depth = y * Math.sin(angleX) + rotatedZ * Math.cos(angleX);
+    const perspective = 2.8 / (3.9 - depth * 0.34);
+    return [250 + rotatedX * perspective * 206, 250 - rotatedY * perspective * 206, depth] as const;
+  });
+
+  return [...mesh.faces.keys()]
+    .sort((a, b) => {
+      const depth = (index: number) => mesh.faces[index].reduce((sum, vertex) => sum + projected[vertex][2], 0) / 3;
+      return depth(a) - depth(b);
+    })
+    .map((index) => {
+      const face = mesh.faces[index];
+      const points = face.map((vertex) => `${projected[vertex][0].toFixed(1)},${projected[vertex][1].toFixed(1)}`).join(" ");
+      const fill = materials[mesh.tones[index]];
+      return <polygon key={index} points={points} fill={fill} fillOpacity={mesh.tones[index] > 3 ? 0.7 : 0.94} stroke="#bababa" strokeOpacity="0.48" strokeWidth="0.72" />;
+    });
+}
+
+export function HeroSculpture() {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const fallbackRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    const hostElement: HTMLDivElement = host;
+
+    let disposed = false;
+    let cleanup = () => {};
+
+    async function setup() {
+      const THREE = await import("three");
+      if (disposed) return;
+
+      let renderer: ThreeNamespace.WebGLRenderer;
+      try {
+        renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" });
+      } catch {
+        return;
+      }
+
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.setClearColor(0x000000, 0);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.05;
+      renderer.domElement.setAttribute("aria-hidden", "true");
+      hostElement.appendChild(renderer.domElement);
+      if (fallbackRef.current) fallbackRef.current.style.display = "none";
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(37, 1, 0.1, 100);
+      camera.position.set(0, 0, 4.2);
+      const sculpture = new THREE.Group();
+      sculpture.rotation.set(-0.12, -0.3, 0.02);
+      scene.add(sculpture);
+
+      const vertices = new Float32Array(mesh.points.flat());
+      const indices: number[] = [];
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+      geometry.setAttribute(
+        "uv",
+        new THREE.Float32BufferAttribute(
+          mesh.points.flatMap(([x, y, z]) => [
+            Math.atan2(z, x) / (Math.PI * 2) + 0.5,
+            Math.asin(THREE.MathUtils.clamp(y, -1, 1)) / Math.PI + 0.5,
+          ]),
+          2,
+        ),
+      );
+      mesh.faces.forEach((face, index) => {
+        geometry.addGroup(index * 3, 3, mesh.tones[index]);
+        indices.push(...face);
+      });
+      geometry.setIndex(indices);
+      geometry.computeVertexNormals();
+
+      const texture = makeGrainTexture(THREE);
+      const palette = materials.map((color, index) => new THREE.MeshStandardMaterial({
+        color,
+        map: index > 1 && index < 5 ? texture : null,
+        roughness: 0.7 + (index % 3) * 0.08,
+        metalness: 0.18 + (index % 3) * 0.08,
+        flatShading: true,
+        side: THREE.DoubleSide,
+      }));
+      const panels = new THREE.Mesh(geometry, palette);
+      sculpture.add(panels);
+
+      const edgeGeometry = new THREE.EdgesGeometry(geometry, 1);
+      const edges = new THREE.LineSegments(edgeGeometry, new THREE.LineBasicMaterial({ color: 0xb9b9b9, transparent: true, opacity: 0.54 }));
+      edges.scale.set(1.001, 1.001, 1.001);
+      sculpture.add(edges);
+
+      scene.add(new THREE.AmbientLight(0xd1d1d1, 1.45));
+      const key = new THREE.DirectionalLight(0xffffff, 2.7);
+      key.position.set(-3.5, 4.2, 5);
+      scene.add(key);
+      const fill = new THREE.DirectionalLight(0x999999, 0.8);
+      fill.position.set(4, -1.5, 3);
+      scene.add(fill);
+      const rim = new THREE.PointLight(0xdddddd, 8, 8);
+      rim.position.set(0.5, 2.4, -2.2);
+      scene.add(rim);
+
+      let animation = 0;
+      let previousFrame = 0;
+      let elapsed = 0;
+      const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const resize = () => {
+        const width = hostElement.clientWidth;
+        const height = hostElement.clientHeight;
+        if (!width || !height) return;
+        camera.aspect = width / height;
+        camera.position.z = window.innerWidth <= 760 ? 4.4 : 4;
+        sculpture.scale.setScalar(1);
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height, false);
+        renderer.render(scene, camera);
+      };
+      const render = (time: number) => {
+        animation = 0;
+        if (motion.matches || document.hidden) {
+          previousFrame = 0;
+          renderer.render(scene, camera);
+          return;
+        }
+        const delta = previousFrame === 0 ? 0 : Math.min((time - previousFrame) / 1000, 0.05);
+        previousFrame = time;
+        elapsed += delta;
+        sculpture.rotation.y += delta * 0.035;
+        sculpture.rotation.x = -0.12 + Math.sin(elapsed * 0.22) * 0.018;
+        renderer.render(scene, camera);
+        animation = window.requestAnimationFrame(render);
+      };
+      const updateMotion = () => {
+        window.cancelAnimationFrame(animation);
+        animation = 0;
+        previousFrame = 0;
+        if (motion.matches || document.hidden) renderer.render(scene, camera);
+        else animation = window.requestAnimationFrame(render);
+      };
+      const updateVisibility = () => updateMotion();
+      const observer = new ResizeObserver(resize);
+      observer.observe(hostElement);
+      resize();
+      updateMotion();
+      motion.addEventListener("change", updateMotion);
+      document.addEventListener("visibilitychange", updateVisibility);
+
+      cleanup = () => {
+        motion.removeEventListener("change", updateMotion);
+        document.removeEventListener("visibilitychange", updateVisibility);
+        observer.disconnect();
+        window.cancelAnimationFrame(animation);
+        edgeGeometry.dispose();
+        edges.material.dispose();
+        geometry.dispose();
+        palette.forEach((material) => material.dispose());
+        texture.dispose();
+        renderer.dispose();
+        renderer.domElement.remove();
+      };
+    }
+
+    setup().catch(() => {
+      // Keep the static SVG fallback if the WebGL module cannot load.
+    });
+
+    return () => {
+      disposed = true;
+      cleanup();
     };
   }, []);
 
-  const frameA = useHexFrame(2.62, 2.44, 0.055);
-  const frameB = useHexFrame(2.22, 2.05, 0.05);
-  const frameC = useHexFrame(1.92, 1.77, 0.045);
-
-  const shards = useMemo(
-    () =>
-      Array.from({ length: 8 }, (_, index) => {
-        const angle = (index / 8) * Math.PI * 2;
-        const radius = 2.92 + (index % 3) * 0.16;
-        return {
-          position: [Math.cos(angle) * radius, Math.sin(angle * 2.4) * 0.5, Math.sin(angle) * radius] as [
-            number,
-            number,
-            number,
-          ],
-          rotation: [angle, angle * 1.7, angle * 0.6] as [number, number, number],
-          scale: 0.055 + (index % 3) * 0.022,
-        };
-      }),
-    [],
-  );
-
-  useEffect(() => {
-    if (reducedMotion) return;
-
-    const onPointerMove = (event: PointerEvent) => {
-      pointer.current.x = (event.clientX / window.innerWidth) * 2 - 1;
-      pointer.current.y = (event.clientY / window.innerHeight) * 2 - 1;
-    };
-
-    window.addEventListener("pointermove", onPointerMove, { passive: true });
-    return () => window.removeEventListener("pointermove", onPointerMove);
-  }, [reducedMotion]);
-
-  useFrame((state, delta) => {
-    const group = groupRef.current;
-    if (!group || reducedMotion) return;
-
-    const time = state.clock.elapsedTime;
-
-    group.rotation.y += delta * 0.07;
-    group.rotation.x = THREE.MathUtils.damp(group.rotation.x, 0.16 + pointer.current.y * 0.1, 2.4, delta);
-    group.rotation.z = Math.sin(time * 0.1) * 0.025;
-    group.position.x = THREE.MathUtils.damp(group.position.x, pointer.current.x * 0.22, 2.4, delta);
-    group.position.y = THREE.MathUtils.damp(group.position.y, -pointer.current.y * 0.12, 2.4, delta);
-
-    frameRefs.current.forEach((frame, index) => {
-      if (!frame) return;
-      frame.rotation.z += delta * (index % 2 === 0 ? 0.018 : -0.024);
-    });
-
-    if (orbitRef.current) {
-      orbitRef.current.rotation.y -= delta * 0.1;
-      orbitRef.current.rotation.x = Math.sin(time * 0.14) * 0.12;
-    }
-  });
-
   return (
-    <group ref={groupRef} rotation={[0.16, 0.3, 0]} scale={1.08}>
-      <mesh geometry={geometries.core} material={materials.metal} />
-      <lineSegments geometry={geometries.coreEdges} material={materials.edge} />
-
-      <lineSegments geometry={geometries.cage} material={materials.edge} />
-
-      <mesh
-        ref={(node) => {
-          frameRefs.current[0] = node;
-        }}
-        geometry={frameA}
-        material={materials.metal}
-        rotation={[Math.PI / 2.15, 0.12, 0]}
-      />
-      <mesh
-        ref={(node) => {
-          frameRefs.current[1] = node;
-        }}
-        geometry={frameB}
-        material={materials.graphite}
-        rotation={[0.42, Math.PI / 2.4, 0.34]}
-      />
-      <mesh
-        ref={(node) => {
-          frameRefs.current[2] = node;
-        }}
-        geometry={frameC}
-        material={materials.metal}
-        rotation={[1.32, -0.46, 0.92]}
-      />
-
-      <mesh rotation={[Math.PI / 2.6, 0.2, 0.4]}>
-        <torusGeometry args={[2.98, 0.012, 3, 180]} />
-        <primitive object={materials.hairline} attach="material" />
-      </mesh>
-
-      <group ref={orbitRef}>
-        {shards.map((shard, index) => (
-          <mesh
-            key={index}
-            geometry={geometries.shard}
-            material={materials.graphite}
-            position={shard.position}
-            rotation={shard.rotation}
-            scale={shard.scale}
-          />
-        ))}
-      </group>
-    </group>
-  );
-}
-
-export default function HeroSculpture({ reducedMotion, onReady }: HeroSculptureProps) {
-  return (
-    <Canvas
-      dpr={[1, 1.8]}
-      camera={{ position: [0, 0, 9.4], fov: 42, near: 0.1, far: 40 }}
-      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-      onCreated={({ gl }) => {
-        gl.toneMapping = THREE.ACESFilmicToneMapping;
-        gl.toneMappingExposure = 1.05;
-      }}
-      style={{ pointerEvents: "none" }}
-    >
-      <StudioEnvironment />
-      <FirstFrame onReady={onReady} />
-
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[4, 6, 5]} intensity={2.6} />
-      <directionalLight position={[-5, -3, 2]} intensity={1.15} color="#b8c1c8" />
-      <pointLight position={[0, -3, 4]} intensity={26} distance={16} decay={2} color="#ffffff" />
-
-      <Sculpture reducedMotion={reducedMotion} />
-    </Canvas>
+    <div ref={hostRef} className="hero-sculpture" aria-hidden="true">
+      <svg ref={fallbackRef} className="hero-sculpture-fallback" viewBox="0 0 500 500" role="presentation">
+        {projectedFallback()}
+      </svg>
+    </div>
   );
 }

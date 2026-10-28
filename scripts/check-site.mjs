@@ -1,0 +1,192 @@
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+
+const root = process.cwd();
+const baseUrl = process.env.SITE_URL?.replace(/\/$/, "");
+const failures = [];
+const passes = [];
+
+function read(relativePath) {
+  return readFileSync(join(root, relativePath), "utf8");
+}
+
+function expectFile(relativePath, label = relativePath) {
+  const absolutePath = join(root, relativePath);
+  if (!existsSync(absolutePath) || !statSync(absolutePath).isFile()) {
+    failures.push(`Missing file: ${label}`);
+    return null;
+  }
+  passes.push(`Found ${label}`);
+  return absolutePath;
+}
+
+function expect(condition, message) {
+  if (condition) passes.push(message);
+  else failures.push(message);
+}
+
+const sourceFiles = [
+  "app/sitemap.ts",
+  "app/robots.ts",
+  "app/manifest.ts",
+  "app/llms.txt/route.ts",
+  "app/not-found.tsx",
+  "app/error.tsx",
+  "app/global-error.tsx",
+  "app/page.tsx",
+  "app/products/page.tsx",
+  "app/contact/page.tsx",
+  "lib/seo.ts",
+  "components/seo/JsonLd.tsx",
+];
+sourceFiles.forEach((file) => expectFile(file));
+
+const resumePath = expectFile("public/Al-Shahriar-Sowan-Resume.pdf", "resume PDF");
+if (resumePath) {
+  const header = readFileSync(resumePath).subarray(0, 5).toString("utf8");
+  expect(header === "%PDF-", "Resume file has a valid PDF header");
+}
+
+const iconFiles = [
+  "app/favicon.ico",
+  "app/icon.png",
+  "app/apple-icon.png",
+  "public/icons/favicon-16x16.png",
+  "public/icons/favicon-32x32.png",
+  "public/icons/favicon-48x48.png",
+  "public/icons/icon-192.png",
+  "public/icons/icon-512.png",
+];
+iconFiles.forEach((file) => expectFile(file));
+
+const ogPath = expectFile("public/og.png", "social preview image");
+if (ogPath) {
+  const png = readFileSync(ogPath);
+  const signature = png.subarray(0, 8).toString("hex");
+  const width = png.readUInt32BE(16);
+  const height = png.readUInt32BE(20);
+  expect(signature === "89504e470d0a1a0a", "Social preview is a PNG");
+  expect(width === 1200 && height === 630, `Social preview is 1200x630 (found ${width}x${height})`);
+}
+
+const site = read("lib/content/site.ts");
+const siteUrl = "https://alshahriarsayon.vercel.app";
+expect(site.includes(siteUrl), `Content uses the production origin ${siteUrl}`);
+expect(!/alshahriarsowan\.vercel\.app/i.test(site), "Content does not reference the old domain");
+
+const productNames = [
+  "SeedCode CLI",
+  "SeedCode Chat",
+  "SeedCode Chat Android",
+  "Mr Mesoff",
+  "IntLLM",
+  "SeedMail",
+  "Dorkey",
+];
+productNames.forEach((name) => expect(site.includes(name), `Product data includes ${name}`));
+
+const llms = read("app/llms.txt/route.ts");
+expect(llms.includes("products") && llms.includes(".map("), "llms.txt is generated from the product data");
+expect(llms.includes("product.website") && llms.includes("product.description"), "llms.txt includes project links and descriptions");
+expect(llms.includes("${siteUrl}/products"), "llms.txt links the products page");
+expect(llms.includes("${siteUrl}/contact"), "llms.txt links the contact page");
+expect(llms.includes("## Products") && llms.includes("## Website Pages"), "llms.txt has products and pages sections");
+expect(!llms.includes("process.env"), "llms.txt does not expose environment variables");
+
+const robots = read("app/robots.ts");
+expect(robots.includes("${siteUrl}/sitemap.xml"), "robots.txt references the production sitemap");
+expect(robots.includes('allow: "/"'), "robots.txt allows public crawling");
+
+const sitemap = read("app/sitemap.ts");
+expect(sitemap.includes("${siteUrl}/"), "sitemap includes the homepage");
+expect(sitemap.includes("${siteUrl}/products"), "sitemap includes /products");
+expect(sitemap.includes("${siteUrl}/contact"), "sitemap includes /contact");
+expect(!sitemap.includes("http://"), "sitemap does not use insecure URLs");
+
+const layout = read("app/layout.tsx");
+expect(layout.includes("metadataBase: new URL(siteUrl)"), "Metadata base uses the production origin");
+expect(layout.includes("socialImage"), "Root metadata uses the social preview image");
+expect(layout.includes("/favicon.ico"), "Root metadata references the favicon");
+
+const pages = {
+  "app/page.tsx": 'path: "/"',
+  "app/products/page.tsx": 'path: "/products"',
+  "app/contact/page.tsx": 'path: "/contact"',
+};
+for (const [file, needle] of Object.entries(pages)) {
+  expect(read(file).includes(needle), `${file} defines its canonical path (${needle})`);
+}
+
+const notFound = read("app/not-found.tsx");
+expect(notFound.includes("not-found-title"), "404 page has a heading");
+expect(notFound.includes('href="/products"'), "404 page links to products");
+expect(notFound.includes("robots: { index: false, follow: false }"), "404 page is marked noindex");
+
+const errorPage = read("app/error.tsx");
+expect(errorPage.includes('"use client"'), "Route error boundary is a client component");
+expect(errorPage.includes("onClick={reset}"), "Route error boundary exposes a retry action");
+expect(!errorPage.includes("error.message"), "Route error boundary does not render raw error messages");
+
+const globalError = read("app/global-error.tsx");
+expect(globalError.includes('"use client"'), "Global error boundary is a client component");
+expect(globalError.includes("<html") && globalError.includes("<body"), "Global error defines html and body");
+expect(globalError.includes("onClick={reset}"), "Global error boundary exposes a retry action");
+
+const nextConfig = read("next.config.ts");
+expect(nextConfig.includes("X-Content-Type-Options"), "Security headers include nosniff");
+expect(nextConfig.includes("Referrer-Policy"), "Security headers include a referrer policy");
+
+if (baseUrl) {
+  const routes = [
+    ["/", 200],
+    ["/products", 200],
+    ["/contact", 200],
+    ["/sitemap.xml", 200],
+    ["/robots.txt", 200],
+    ["/llms.txt", 200],
+    ["/this-route-should-not-exist", 404],
+  ];
+
+  for (const [route, expectedStatus] of routes) {
+    try {
+      const response = await fetch(`${baseUrl}${route}`, { redirect: "manual" });
+      const body = await response.text();
+      expect(response.status === expectedStatus, `${route} returned ${response.status} (expected ${expectedStatus})`);
+      if (route === "/") {
+        expect(body.includes('rel="canonical"'), "Homepage has a canonical URL");
+        expect(body.includes(`${siteUrl}/`), "Homepage canonical uses the production origin");
+        expect(body.includes("application/ld+json"), "Homepage includes structured data");
+      }
+      if (route === "/products") {
+        productNames.slice(0, 3).forEach((name) => {
+          expect(body.includes(name), `Products page renders ${name}`);
+        });
+      }
+      if (route === "/sitemap.xml") {
+        expect(body.includes(`${siteUrl}/products`), "Sitemap XML includes /products");
+        expect(body.includes(`${siteUrl}/contact`), "Sitemap XML includes /contact");
+      }
+      if (route === "/robots.txt") {
+        expect(body.includes(`${siteUrl}/sitemap.xml`), "Robots response references the sitemap");
+      }
+      if (route === "/llms.txt") {
+        productNames.forEach((name) => {
+          expect(body.includes(name), `llms.txt response includes ${name}`);
+        });
+      }
+      if (expectedStatus === 404) {
+        expect(body.includes("not-found-title"), "404 response renders the custom not-found page");
+      }
+    } catch (error) {
+      failures.push(`${route} request failed: ${error.message}`);
+    }
+  }
+} else {
+  passes.push("Static checks only (set SITE_URL to run live HTTP checks)");
+}
+
+for (const message of passes) console.log(`PASS  ${message}`);
+for (const message of failures) console.error(`FAIL  ${message}`);
+console.log(`\n${passes.length} checks passed, ${failures.length} failed.`);
+
+if (failures.length > 0) process.exit(1);

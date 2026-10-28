@@ -16,23 +16,21 @@
  * frontend; the site therefore makes no framework claim for that project.
  */
 
+export const siteUpdatedAt = "2026-10-28";
+
 export const profile = {
   name: "Al Shahriar Sowan",
   alternateName: "Al Shahriar Sayon",
-  role: "AI Tools & Software Developer",
+  role: "Websites & Software",
   resumeTitle: "Junior AI Tools & Software Developer",
-  location: {
-    short: "Gazipur, Bangladesh",
-    full: "Board Bazar, Gazipur, Bangladesh",
-  },
   availability: "Open to junior & internship roles",
   email: "alshahriarsayon425@gmail.com",
   summary:
-    "Junior AI tools developer with hands-on IT deployment experience across 6 City Bank PLC branches. Built and released Seed Code CLI, a multi-provider AI coding assistant backed by 987 passing tests, plus a unified AI chat web app. Studying Computer Science & Technology at Dhaka Polytechnic Institute; open to junior and internship roles.",
+    "Independent developer building AI tools, websites, and software—from a terminal coding assistant to a multi-provider chat interface and local-first AI experiments. Studying Computer Science & Technology at Dhaka Polytechnic Institute, with hands-on IT deployment experience.",
   bio: [
-    "I'm Al Shahriar Sowan, a junior AI tools and software developer based in Gazipur, Bangladesh. I build developer tools and interfaces around LLMs — a coding CLI with an autonomous agent mode, a unified chat app, and a local-first AI runtime.",
-    "Most of the work sits where models meet tools: multi-provider integrations, tool calling, agent workflows and the interfaces that make them usable. The output is practical — a CLI that plans and verifies its own work, a chat app that keeps provider choice open, and a runtime that gives local models memory and retrieval.",
-    "I'm studying Computer Science & Technology at Dhaka Polytechnic Institute, currently in my third semester. Alongside my studies, I worked on operating-system deployment and network setup for a six-branch bank rollout. I'm open to junior and internship roles.",
+    "I'm an independent developer who likes turning practical ideas into working software. I keep coming back to AI tools and the interfaces around them: a terminal coding assistant, a chat workspace for different models, and a local-first runtime built around Ollama.",
+    "Each project starts with a question of use: how to bring a model into a real coding task, keep model choice open, or make a local model more useful through memory and tools. I build the supporting layers as carefully as the interface, and enjoy exploring what makes a tool dependable rather than treating AI as a feature pasted onto a generic product.",
+    "I develop and experiment independently under Eagox Studio, from focused browser tools to software still in development. My longer-term ambition is to keep learning by making useful products people can genuinely use. Alongside that work, I study Computer Science & Technology at Dhaka Polytechnic Institute.",
   ],
   links: {
     github: "https://github.com/Alshahriar-07",
@@ -49,22 +47,22 @@ export const profile = {
     downloadName: "Al-Shahriar-Sowan-Resume.pdf",
   },
   metaDescription:
-    "Al Shahriar Sowan is an AI tools and software developer from Gazipur, Bangladesh, building developer tools and AI interfaces including Seed Code CLI and Seed Code Chat.",
+    "Al Shahriar Sowan is an independent developer focused on AI tools, websites, and software, building products including SeedCode CLI, SeedCode Chat, and IntLLM."
 } as const;
 
 export const navLinks = [
-  { label: "Work", href: "#work" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "Products", href: "/products" },
+  { label: "About", href: "/#about" },
+  { label: "Contact", href: "/contact" },
 ] as const;
 
 export const siteSections = [
-  { label: "Work", href: "#work" },
-  { label: "About", href: "#about" },
-  { label: "Expertise", href: "#expertise" },
-  { label: "Experience", href: "#experience" },
-  { label: "Studio", href: "#studio" },
-  { label: "Contact", href: "#contact" },
+  { label: "Products", href: "/products" },
+  { label: "About", href: "/#about" },
+  { label: "Expertise", href: "/#expertise" },
+  { label: "Experience", href: "/#experience" },
+  { label: "Studio", href: "/#studio" },
+  { label: "Contact", href: "/contact" },
 ] as const;
 
 export type ShowcaseProject = {
@@ -203,14 +201,7 @@ export const expertise = [
     name: "AI tools & agents",
     description:
       "Multi-provider LLM integration, tool calling and agent workflows. I build around the model — routing requests, giving it tools, and keeping state across a task.",
-    tags: [
-      "LLM integration",
-      "Tool calling",
-      "Agent workflows",
-      "Task orchestration",
-      "OpenRouter",
-      "Ollama",
-    ],
+    tags: ["LLM integration", "Tool calling", "Agent workflows", "Task orchestration", "OpenRouter", "Ollama"],
   },
   {
     name: "Software & web",
@@ -222,13 +213,7 @@ export const expertise = [
     name: "Systems & deployment",
     description:
       "Windows installation, configuration and deployment testing from a six-branch bank rollout — plus the networking and troubleshooting that comes with putting machines into service.",
-    tags: [
-      "Windows",
-      "Networking",
-      "Deployment testing",
-      "Troubleshooting",
-      "GitHub Releases",
-    ],
+    tags: ["Windows", "Networking", "Deployment testing", "Troubleshooting", "GitHub Releases"],
   },
   {
     name: "Linux & privacy",
@@ -253,7 +238,7 @@ export const studio = {
   urlLabel: "eagoxstudio.vercel.app",
   description:
     "Eagox Studio is the independent label I design, build and release my software under. It runs across everything in this portfolio: the same practice behind a terminal coding agent, a multi-provider chat app, a local AI runtime and a browser typing test.",
-  note: "A solo practice based in Gazipur, Bangladesh.",
+  note: "Independent software practice."
 } as const;
 
 export const independentWork = {
@@ -282,51 +267,19 @@ export const resumeFacts = {
     {
       group: "AI & LLM",
       note: "Used in projects",
-      items: [
-        "LLM integration (multi-provider)",
-        "Tool calling",
-        "AI agent workflows",
-        "Task orchestration",
-        "Local models (Ollama)",
-        "OpenRouter",
-      ],
+      items: ["LLM integration (multi-provider)", "Tool calling", "AI agent workflows", "Task orchestration", "Local models (Ollama)", "OpenRouter"],
     },
     {
       group: "Systems & IT",
-      items: [
-        "Python",
-        "HTML",
-        "CSS",
-        "Supabase (database and authentication)",
-        "API integration",
-        "Git",
-        "GitHub",
-        "GitHub Releases",
-        "VS Code",
-        "Vercel",
-        "Windows OS installation and configuration",
-        "Deployment testing",
-        "Networking",
-        "Troubleshooting",
-      ],
+      items: ["Python", "HTML", "CSS", "Supabase (database and authentication)", "API integration", "Git", "GitHub", "GitHub Releases", "VS Code", "Vercel", "Windows OS installation and configuration", "Deployment testing", "Networking", "Troubleshooting"],
     },
     {
       group: "Linux & Privacy",
-      items: [
-        "Hands-on use of Kali Linux, Arch Linux and Tails (privacy-focused OS)",
-        "Familiar with Tor network access",
-      ],
+      items: ["Hands-on use of Kali Linux, Arch Linux and Tails (privacy-focused OS)", "Familiar with Tor network access"],
     },
     {
       group: "Currently learning",
-      items: [
-        "TypeScript",
-        "Next.js",
-        "Node.js",
-        "Tailwind CSS",
-        "System design",
-        "Agent and tool-calling layers around LLMs",
-      ],
+      items: ["TypeScript", "Next.js", "Node.js", "Tailwind CSS", "System design", "Agent and tool-calling layers around LLMs"],
     },
   ],
   experience: [
@@ -359,3 +312,63 @@ export const resumeFacts = {
     },
   ],
 } as const;
+
+export type Product = {
+  name: string;
+  slug: string;
+  category: string;
+  description: string;
+  tags: readonly string[];
+  website: string;
+  github?: string;
+  preview?: { src: string; alt: string; domain: string };
+};
+
+export const products: readonly Product[] = [
+  {
+    name: "SeedCode CLI", slug: "seedcode-cli", category: "AI Development Tools",
+    description: "An AI-powered command-line coding assistant designed to streamline software development through multiple AI providers, intelligent coding workflows, and developer tools.",
+    tags: ["AI", "CLI", "Python", "Developer Tools", "Automation"],
+    website: "https://seedcode-cli.vercel.app/", github: "https://github.com/Alshahriar-07/seedcode-cli",
+    preview: { src: "/projects/seedcode-cli.webp", alt: "Seed Code CLI installer page with a PowerShell install command and Windows download options", domain: "seedcode-cli.vercel.app" },
+  },
+  {
+    name: "SeedCode Chat", slug: "seedcode-chat", category: "AI Applications",
+    description: "A web-based AI chat platform that provides access to multiple AI models through a clean, user-friendly interface.",
+    tags: ["AI", "LLM", "Web Application", "Chat"],
+    website: "https://seedcode-chat.vercel.app/", github: "https://github.com/Alshahriar-07/seedcode-chat",
+    preview: { src: "/projects/seedcode-chat.webp", alt: "Seed Code Chat interface with a sidebar, model selector and empty chat state", domain: "seedcode-chat.vercel.app" },
+  },
+  {
+    name: "SeedCode Chat Android", slug: "seedcode-chat-android", category: "Android Applications",
+    description: "An Android-focused AI chat application designed to bring the SeedCode AI experience to mobile devices.",
+    tags: ["Android", "AI", "Mobile Application", "LLM"],
+    website: "https://seedcode-app.vercel.app/", github: "https://github.com/Alshahriar-07/seedcode-chat",
+  },
+  {
+    name: "Mr Mesoff", slug: "mr-mesoff", category: "Web Development",
+    description: "A dedicated web project built under the Mr Mesoff brand, featuring its own website and digital presence.",
+    tags: ["Web Development", "Frontend", "Website Design"],
+    website: "https://mrmesoff.vercel.app/", github: "https://github.com/Alshahriar-07/mr-mesoff-web",
+  },
+  {
+    name: "IntLLM", slug: "intllm", category: "Artificial Intelligence",
+    description: "An AI and large language model-focused project developed as part of an exploration into AI-powered applications and LLM technology.",
+    tags: ["AI", "LLM", "Artificial Intelligence", "Web Application"],
+    website: "https://intllm.vercel.app/", github: "https://github.com/Alshahriar-07/INTLLM",
+    preview: { src: "/projects/intllm.webp", alt: "IntLLM landing page with local AI headline, download actions and terminal install command", domain: "intllm.vercel.app" },
+  },
+  {
+    name: "SeedMail", slug: "seedmail", category: "Email Technology",
+    description: "An email-related web project developed under the SeedMail brand, expanding the Seed ecosystem into email-focused technology.",
+    tags: ["Email", "Web Development", "Seed Ecosystem"],
+    website: "http://mrseedmail.vercel.app/", github: "https://github.com/Alshahriar-07/Seed-Mail",
+  },
+  {
+    name: "Dorkey", slug: "dorkey", category: "Web Applications",
+    description: "An independent web project developed under the Dorkey brand, with its own dedicated online platform.",
+    tags: ["Web Application", "Independent Project", "Web Development"],
+    website: "https://dorkey.vercel.app/", github: "https://github.com/Alshahriar-07/Dorkey",
+    preview: { src: "/projects/dorkey.webp", alt: "Dorkey typing test landing page with a live practice session preview", domain: "dorkey.vercel.app" },
+  },
+];

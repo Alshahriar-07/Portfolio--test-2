@@ -1,11 +1,11 @@
 import Image from "next/image";
 import { ActionLink } from "@/components/ui/ActionLink";
-import { ArrowDown, ArrowUpRight } from "@/components/ui/icons";
+import { Download, Mail } from "@/components/ui/icons";
 import { SectionIntro } from "@/components/ui/SectionIntro";
 import { profile } from "@/lib/content/site";
 
 const facts = [
-  { label: "Based in", value: profile.location.short },
+  { label: "Focus", value: "AI tools · websites · software" },
   { label: "Studying", value: "Diploma in Computer Science & Technology — 3rd semester" },
   { label: "Institution", value: "Dhaka Polytechnic Institute, Tejgaon" },
   { label: "Status", value: profile.availability },
@@ -42,7 +42,7 @@ export function About() {
                 />
                 <figcaption className="flex items-center justify-between gap-4 px-1 pt-2.5 font-mono text-[9px] uppercase tracking-[0.16em] text-black/65">
                   <span>Fig. 02 — Portrait</span>
-                  <span>Gazipur, BD</span>
+                  <span>Independent practice</span>
                 </figcaption>
               </div>
             </figure>
@@ -67,13 +67,13 @@ export function About() {
             </dl>
 
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <ActionLink href="#contact" variant="solid" icon={<ArrowUpRight />}>
+              <ActionLink href="/contact" variant="solid" icon={<Mail aria-hidden="true" />}>
                 Start a conversation
               </ActionLink>
               <ActionLink
                 href={profile.resume.publicPath}
                 download={profile.resume.downloadName}
-                icon={<ArrowDown />}
+                icon={<Download aria-hidden="true" />}
               >
                 Download resume
               </ActionLink>
