@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { Download, Mail } from "@/components/ui/icons";
 import { SectionIntro } from "@/components/ui/SectionIntro";
@@ -28,7 +29,7 @@ export function About() {
         />
 
         <div className="mt-14 grid gap-10 md:grid-cols-12 md:gap-8">
-          <div className="scroll-reveal md:col-span-5">
+          <div className="md:col-span-5" data-reveal="scale">
             <figure>
               <div className="border border-line bg-white p-2.5 sm:p-3">
                 <Image
@@ -38,7 +39,7 @@ export function About() {
                   height={1024}
                   sizes="(min-width: 768px) 38vw, 92vw"
                   quality={85}
-                  className="h-auto w-full"
+                  className="h-auto w-full max-w-full"
                 />
                 <figcaption className="flex items-center justify-between gap-4 px-1 pt-2.5 font-mono text-[9px] uppercase tracking-[0.16em] text-black/65">
                   <span>Fig. 02 — Portrait</span>
@@ -57,7 +58,11 @@ export function About() {
               ))}
             </div>
 
-            <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-line/60 pt-6">
+            <dl
+              className="mt-10 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-line/60 pt-6"
+              data-reveal
+              style={{ "--rd": "120ms" } as CSSProperties}
+            >
               {facts.map((fact) => (
                 <div key={fact.label}>
                   <dt className="meta">{fact.label}</dt>
@@ -67,10 +72,11 @@ export function About() {
             </dl>
 
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <ActionLink href="/contact" variant="solid" icon={<Mail aria-hidden="true" />}>
+              <ActionLink href="/contact" variant="solid" className="sm:min-w-0 sm:gap-3 sm:px-3" icon={<Mail aria-hidden="true" />}>
                 Start a conversation
               </ActionLink>
               <ActionLink
+                className="sm:min-w-0 sm:gap-3 sm:px-3"
                 href={profile.resume.publicPath}
                 download={profile.resume.downloadName}
                 icon={<Download aria-hidden="true" />}

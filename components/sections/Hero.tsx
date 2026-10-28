@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { ArrowDown, ArrowRight, Download } from "@/components/ui/icons";
 import { HeroSculpture } from "@/components/visuals/HeroSculpture";
@@ -7,58 +7,23 @@ import { profile } from "@/lib/content/site";
 
 const resumeHref = profile.resume.publicPath;
 
-function Monogram() {
-  return (
-    <Image
-      className="hero-monogram"
-      src="/icons/icon-512.png"
-      alt="Al Shahriar Sowan monogram"
-      width={76}
-      height={76}
-      unoptimized
-    />
-  );
-}
-
-function HeroNavigation() {
-  return (
-    <nav className="hero-nav" aria-label="Primary">
-      <Link href="/#work">Work</Link>
-      <Link href="/products">Products</Link>
-      <Link href="/#about">About</Link>
-      <Link href="/contact">Contact</Link>
-      <a href={resumeHref} download={profile.resume.downloadName}>
-        Resume <Download aria-hidden="true" />
-      </a>
-    </nav>
-  );
-}
-
 export function Hero() {
   return (
     <section id="top" aria-labelledby="hero-title" className="hero-stage">
       <div className="hero-background" aria-hidden="true" />
       <HeroSculpture />
 
-      <header className="hero-header">
-        <Link className="hero-identity" href="/" aria-label={`${profile.name}, home`}>
-          <Monogram />
-          <span className="hero-identity-copy">
-            <strong>Al Shahriar Sowan</strong>
-            <span>Software Developer</span>
-          </span>
-        </Link>
-        <HeroNavigation />
-      </header>
-
-      <p className="hero-side-label">Portfolio {new Date().getFullYear()}</p>
+      <p className="hero-side-label hero-reveal-fade" style={{ "--d": "180ms" } as CSSProperties}>Al Shahriar Sowan / Bangladesh</p>
 
       <div className="hero-heading-wrap">
-        <h1 id="hero-title" className="hero-editorial-title">
+        <h1 id="hero-title" className="hero-editorial-title hero-reveal">
           <span>Websites &amp;</span>
           <span className="hero-outline">Software</span>
         </h1>
-        <div className="hero-actions">
+        <p className="hero-intro hero-reveal" style={{ "--d": "140ms" } as CSSProperties}>
+          Al Shahriar Sowan is an independent software developer in Bangladesh building AI tools, web applications, and useful software.
+        </p>
+        <div className="hero-actions hero-reveal" style={{ "--d": "260ms" } as CSSProperties}>
           <ActionLink href="/#work" variant="outline" className="!w-auto min-w-[11.5rem] max-w-full" icon={<ArrowRight aria-hidden="true" />}>
             Explore work
           </ActionLink>
@@ -74,12 +39,12 @@ export function Hero() {
         </div>
       </div>
 
-      <aside className="hero-right-note" aria-label="What I build">
+      <aside className="hero-right-note hero-reveal-fade" style={{ "--d": "360ms" } as CSSProperties} aria-label="What I build">
         <span aria-hidden="true" />
         <p>Building<br />Useful tools<br />For a better<br />Tomorrow.</p>
       </aside>
 
-      <div className="hero-footer">
+      <div className="hero-footer hero-reveal-fade" style={{ "--d": "440ms" } as CSSProperties}>
         <div className="hero-category">
           <span className="hero-status-dot" aria-hidden="true" />
           <span>Independent developer</span>

@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ArrowLeft, ArrowRight, LoaderCircle } from "@/components/ui/icons";
 
 export default function ErrorPage({ reset }: { reset: () => void }) {
   return (
     <>
-      <SiteHeader />
       <main id="main" className="pt-[var(--header-h)]">
         <section
           aria-labelledby="error-title"

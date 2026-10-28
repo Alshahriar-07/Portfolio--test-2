@@ -76,11 +76,6 @@ export function homeStructuredData() {
           "Next.js",
           "TypeScript",
         ],
-        worksFor: {
-          "@type": "Organization",
-          name: "Eagox Studio",
-          url: "https://eagoxstudio.vercel.app",
-        },
       },
       {
         "@type": "ProfilePage",

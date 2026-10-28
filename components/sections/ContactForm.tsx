@@ -97,14 +97,20 @@ export function ContactForm() {
         <p className="text-xs leading-relaxed text-muted">Required fields are marked with *.</p>
       </div>
 
-      <p
-        role={state === "error" ? "alert" : "status"}
-        aria-live={state === "error" ? "assertive" : "polite"}
-        className={`min-h-6 text-sm leading-relaxed ${state === "success" ? "text-paper" : state === "error" ? "text-paper" : "text-muted"}`}
-      >
-        {state === "success" ? <Check aria-hidden="true" className="mr-2 inline size-4" /> : null}
-        {message}
-      </p>
+      {message ? (
+        <div
+          className={`form-feedback flex min-h-12 items-start gap-3 border px-4 py-3 text-sm leading-relaxed ${state === "success" ? "border-line bg-ink-raised text-paper" : "border-line text-paper"}`}
+          data-state={state}
+          role={state === "error" ? "alert" : "status"}
+          aria-live={state === "error" ? "assertive" : "polite"}
+        >
+          {state === "success" ? <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0" /> : null}
+          <span>
+            {state === "success" ? <strong className="mb-1 block font-display text-base font-medium">Thank you for reaching out.</strong> : null}
+            {message}
+          </span>
+        </div>
+      ) : null}
     </form>
   );
 }

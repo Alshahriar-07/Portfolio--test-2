@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { Download, Github, Linkedin, Mail } from "@/components/ui/icons";
 import { profile } from "@/lib/content/site";
 
@@ -10,7 +11,7 @@ export function Contact() {
       className="relative border-t border-line/60"
     >
       <div className="shell py-20 md:py-28">
-        <div className="scroll-reveal grid gap-10 md:grid-cols-12 md:gap-8">
+        <div className="grid gap-10 md:grid-cols-12 md:gap-8" data-reveal="mask">
           <div className="md:col-span-3">
             <p className="meta">07 / Contact</p>
           </div>
@@ -20,13 +21,14 @@ export function Contact() {
               id="contact-title"
               className="font-display text-[clamp(2.4rem,7vw,5.5rem)] font-medium uppercase leading-[0.9] tracking-[-0.045em] text-paper"
             >
-              Let&apos;s build
-              <br />
-              <span className="outline-type">something</span>
+              <span className="reveal-inner block">Let&apos;s build</span>
+              <span className="reveal-inner outline-type block">something</span>
             </h2>
 
             <a
               href="/contact"
+              data-reveal
+              style={{ "--rd": "160ms" } as CSSProperties}
               className="group mt-12 flex flex-col gap-6 border-y border-line/60 py-8 transition-colors duration-300 hover:bg-paper/[0.02] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper md:flex-row md:items-center md:justify-between md:gap-8"
               aria-label={`Open contact page to message ${profile.name}`}
             >

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { ArrowRight, ExternalLink } from "@/components/ui/icons";
 import { SectionIntro } from "@/components/ui/SectionIntro";
 import { products } from "@/lib/content/site";
@@ -22,6 +23,8 @@ export function SelectedProducts() {
               href={project.website}
               target="_blank"
               rel="noreferrer noopener"
+              data-reveal
+              style={{ "--rd": `${index * 100}ms` } as CSSProperties}
               className="group bg-ink p-4 transition-colors duration-300 hover:bg-ink-raised focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-paper sm:p-5"
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-surface">

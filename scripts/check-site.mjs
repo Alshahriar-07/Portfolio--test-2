@@ -28,6 +28,7 @@ function expect(condition, message) {
 const sourceFiles = [
   "app/sitemap.ts",
   "app/robots.ts",
+  "app/template.tsx",
   "app/manifest.ts",
   "app/llms.txt/route.ts",
   "app/not-found.tsx",
@@ -50,6 +51,7 @@ if (resumePath) {
 const iconFiles = [
   "app/favicon.ico",
   "app/icon.png",
+  "public/google21a248609224cf2d.html",
   "app/apple-icon.png",
   "public/icons/favicon-16x16.png",
   "public/icons/favicon-32x32.png",
@@ -93,6 +95,13 @@ expect(llms.includes("${siteUrl}/contact"), "llms.txt links the contact page");
 expect(llms.includes("## Products") && llms.includes("## Website Pages"), "llms.txt has products and pages sections");
 expect(!llms.includes("process.env"), "llms.txt does not expose environment variables");
 
+const verificationPath = "public/google21a248609224cf2d.html";
+const verificationAssetPath = "public/assets/google21a248609224cf2d.html";
+const verificationFile = readFileSync(join(root, verificationPath));
+const verificationAsset = readFileSync(join(root, verificationAssetPath));
+expect(verificationFile.equals(verificationAsset), "Root Google verification file is an exact copy of the preserved original");
+expect(verificationFile.toString("utf8").trim() === "google-site-verification: google21a248609224cf2d.html", "Google verification file contains the original HTML-file token format");
+
 const robots = read("app/robots.ts");
 expect(robots.includes("${siteUrl}/sitemap.xml"), "robots.txt references the production sitemap");
 expect(robots.includes('allow: "/"'), "robots.txt allows public crawling");
@@ -101,6 +110,7 @@ const sitemap = read("app/sitemap.ts");
 expect(sitemap.includes("${siteUrl}/"), "sitemap includes the homepage");
 expect(sitemap.includes("${siteUrl}/products"), "sitemap includes /products");
 expect(sitemap.includes("${siteUrl}/contact"), "sitemap includes /contact");
+expect(!sitemap.includes("lastModified"), "sitemap does not invent last-modified dates");
 expect(!sitemap.includes("http://"), "sitemap does not use insecure URLs");
 
 const layout = read("app/layout.tsx");
@@ -144,6 +154,11 @@ if (baseUrl) {
     ["/sitemap.xml", 200],
     ["/robots.txt", 200],
     ["/llms.txt", 200],
+    ["/google21a248609224cf2d.html", 200],
+    ["/assets/google21a248609224cf2d.html", 200],
+    ["/favicon.ico", 200],
+    ["/icons/favicon-32x32.png", 200],
+    ["/apple-icon.png", 200],
     ["/this-route-should-not-exist", 404],
   ];
 
@@ -154,8 +169,17 @@ if (baseUrl) {
       expect(response.status === expectedStatus, `${route} returned ${response.status} (expected ${expectedStatus})`);
       if (route === "/") {
         expect(body.includes('rel="canonical"'), "Homepage has a canonical URL");
+        expect(body.includes('href="/icons/favicon-32x32.png"'), "Homepage references the existing PNG favicon");
+        expect(body.includes('name="description"'), "Homepage has a description");
         expect(body.includes(`${siteUrl}/`), "Homepage canonical uses the production origin");
         expect(body.includes("application/ld+json"), "Homepage includes structured data");
+      }
+      if (route === "/products" || route === "/contact") {
+        expect(body.includes('rel="canonical"'), `${route} has a canonical URL`);
+        expect(body.includes('property="og:title"'), `${route} has Open Graph title metadata`);
+      }
+      if (route === "/contact") {
+        expect(body.includes("https://wa.me/8801893134718"), "Contact page has the specified WhatsApp URL");
       }
       if (route === "/products") {
         productNames.slice(0, 3).forEach((name) => {
@@ -173,6 +197,12 @@ if (baseUrl) {
         productNames.forEach((name) => {
           expect(body.includes(name), `llms.txt response includes ${name}`);
         });
+      }
+      if (route.includes("google21a248609224cf2d.html")) {
+        expect(body.trim() === "google-site-verification: google21a248609224cf2d.html", `${route} serves the verification token without page HTML`);
+      }
+      if (route === "/robots.txt") {
+        expect((response.headers.get("content-type") ?? "").includes("text/plain"), "robots response has a text/plain content type");
       }
       if (expectedStatus === 404) {
         expect(body.includes("not-found-title"), "404 response renders the custom not-found page");

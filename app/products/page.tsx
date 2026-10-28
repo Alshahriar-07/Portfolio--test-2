@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import { SiteHeader } from "@/components/layout/SiteHeader";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ExternalLink, Github } from "@/components/ui/icons";
 import { products, profile } from "@/lib/content/site";
@@ -102,7 +102,6 @@ export default function ProductsPage() {
   return (
     <>
       <JsonLd data={productsStructuredData()} />
-      <SiteHeader />
       <main id="main" className="pt-[var(--header-h)]">
         <section aria-labelledby="products-title" className="border-b border-line/60">
           <div className="shell pb-14 pt-10 sm:pb-20 md:pt-16">
@@ -111,8 +110,8 @@ export default function ProductsPage() {
               <Link href="/#about" className="nav-link meta text-paper">About the maker</Link>
             </div>
             <div className="mt-12 grid gap-8 md:grid-cols-12 md:items-end">
-              <h1 id="products-title" className="font-display text-[clamp(3.4rem,11vw,9rem)] font-medium uppercase leading-[0.79] tracking-[-0.07em] text-paper md:col-span-9">
-                Selected<br /><span className="outline-type pl-[8%]">products.</span>
+              <h1 id="products-title" data-reveal="mask" className="font-display text-[clamp(3.4rem,11vw,9rem)] font-medium uppercase leading-[0.79] tracking-[-0.07em] text-paper md:col-span-9">
+                <span className="reveal-inner">Selected<br /><span className="outline-type pl-[8%]">products.</span></span>
               </h1>
               <p className="max-w-sm text-sm leading-relaxed text-muted md:col-span-3 md:pb-2">
                 Seven independent projects across AI tools, mobile and web applications, and focused software experiments.
@@ -144,7 +143,13 @@ export default function ProductsPage() {
 
           <div className="mt-16 grid gap-x-7 gap-y-14 border-t border-line/70 pt-6 sm:grid-cols-2 lg:mt-24 lg:grid-cols-3">
             {moreProjects.map((project, index) => (
-              <article key={project.slug} id={`product-${String(index + 2).padStart(2, "0")}`} className="scroll-reveal min-w-0">
+              <article
+                key={project.slug}
+                id={`product-${String(index + 2).padStart(2, "0")}`}
+                data-reveal
+                style={{ "--rd": `${(index % 3) * 90}ms` } as CSSProperties}
+                className="min-w-0"
+              >
                 <ProjectPreview project={project} />
                 <p className="meta mt-5">{String(index + 2).padStart(2, "0")} / {project.category}</p>
                 <h2 className="mt-3 font-display text-[clamp(1.8rem,3.5vw,3.25rem)] font-medium uppercase leading-[0.88] tracking-[-0.05em] text-paper">

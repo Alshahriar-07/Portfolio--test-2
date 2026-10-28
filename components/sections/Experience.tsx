@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import { SectionIntro } from "@/components/ui/SectionIntro";
 import { independentWork, resumeFacts } from "@/lib/content/site";
 
@@ -40,10 +42,12 @@ export function Experience() {
         />
 
         <div className="mt-14 border-t border-line/60">
-          {entries.map((entry) => (
+          {entries.map((entry, entryIndex) => (
             <article
               key={entry.title}
-              className="scroll-reveal grid gap-6 border-b border-line/60 py-8 md:grid-cols-12 md:gap-8 md:py-10"
+              data-reveal
+              style={{ "--rd": `${entryIndex * 90}ms` } as CSSProperties}
+              className="grid gap-6 border-b border-line/60 py-8 md:grid-cols-12 md:gap-8 md:py-10"
             >
               <div className="md:col-span-2">
                 <p className="meta text-paper">{entry.period}</p>
@@ -77,7 +81,7 @@ export function Experience() {
           ))}
         </div>
 
-        <div className="scroll-reveal mt-14 grid gap-6 md:grid-cols-12 md:gap-8">
+        <div className="mt-14 grid gap-6 md:grid-cols-12 md:gap-8" data-reveal="fade">
           <p className="meta md:col-span-2">Education</p>
 
           <div className="grid gap-8 md:col-span-10 sm:grid-cols-2">

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { ExternalLink, Github } from "@/components/ui/icons";
 import { SectionIntro } from "@/components/ui/SectionIntro";
@@ -168,7 +169,9 @@ export function SelectedWork() {
           {showcaseProjects.map((project, projectIndex) => (
             <article
               key={project.slug}
-              className="scroll-reveal border-t border-line/70 pt-7 md:pt-9"
+              data-reveal
+              style={{ "--rd": `${projectIndex * 80}ms` } as CSSProperties}
+              className="border-t border-line/70 pt-7 md:pt-9"
             >
               <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
                 <div className="flex items-center gap-3">
@@ -195,7 +198,7 @@ export function SelectedWork() {
           ))}
         </div>
 
-        <div className="scroll-reveal mt-20 grid gap-6 border-t border-line/70 pt-8 md:grid-cols-12 md:gap-8">
+        <div className="mt-20 grid gap-6 border-t border-line/70 pt-8 md:grid-cols-12 md:gap-8" data-reveal="fade">
           <p className="meta md:col-span-3">Also building</p>
 
           <ul className="md:col-span-9">

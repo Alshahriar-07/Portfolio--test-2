@@ -70,10 +70,10 @@ export function SiteFooter() {
         <div className="mt-10 flex flex-col gap-3 border-t border-line/60 pt-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="meta">© {year} {profile.name}</p>
           <Link
-            href="/#top"
+            href="/"
             className="group inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted transition-colors duration-300 hover:text-paper"
           >
-            Back to top
+            Home
             <ArrowUp aria-hidden="true" className="transition-transform duration-300 group-hover:-translate-y-0.5" />
           </Link>
         </div>

@@ -29,11 +29,13 @@ ${productLines}
 
 - [Home](${siteUrl}/): introduction, selected products, about, expertise, experience, studio, and contact sections.
 - [Products](${siteUrl}/products): the full index of all seven products with links to each live project and public repository.
-- [Contact](${siteUrl}/contact): direct email and GitHub contact details, plus a contact form.
+- [About section](${siteUrl}/#about): a professional biography, education, and development focus on the homepage.
+- [Contact](${siteUrl}/contact): email, WhatsApp, GitHub, and the contact form.
 
 ## Contact
 
 - [Contact page](${siteUrl}/contact)
+- [WhatsApp](https://wa.me/8801893134718)
 - [GitHub](${profile.links.github})
 - [LinkedIn](${profile.links.linkedin})
 
@@ -42,6 +44,7 @@ ${productLines}
 - Canonical domain: ${siteUrl}/
 - Sitemap: ${siteUrl}/sitemap.xml
 - Content last reviewed: ${siteUpdatedAt}
+- No public About route exists; the professional biography is on the homepage.
 - This file describes only publicly available portfolio content.
 `;
 

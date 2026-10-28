@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import { SectionIntro } from "@/components/ui/SectionIntro";
 import { currentlyLearning, expertise } from "@/lib/content/site";
 
@@ -20,7 +22,9 @@ export function Expertise() {
           {expertise.map((item, index) => (
             <li
               key={item.name}
-              className="scroll-reveal grid gap-5 border-b border-line/60 py-8 md:grid-cols-12 md:gap-8 md:py-10"
+              data-reveal
+              style={{ "--rd": `${index * 70}ms` } as CSSProperties}
+              className="grid gap-5 border-b border-line/60 py-8 md:grid-cols-12 md:gap-8 md:py-10"
             >
               <div className="flex items-baseline justify-between gap-4 md:col-span-2">
                 <span className="font-mono text-[11px] tracking-[0.16em] text-dim">
@@ -55,7 +59,7 @@ export function Expertise() {
           ))}
         </ol>
 
-        <div className="scroll-reveal mt-8 flex flex-col gap-4 border-t border-line/60 pt-6 sm:flex-row sm:items-baseline sm:justify-between">
+        <div className="mt-8 flex flex-col gap-4 border-t border-line/60 pt-6 sm:flex-row sm:items-baseline sm:justify-between" data-reveal="fade">
           <p className="meta text-paper">Currently learning</p>
           <p className="meta max-w-2xl sm:text-right">{currentlyLearning.join("  ·  ")}</p>
         </div>

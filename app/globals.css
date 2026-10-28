@@ -34,7 +34,7 @@
 
   html {
     background-color: var(--color-ink);
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
     scroll-padding-top: calc(var(--header-h) + 1px);
     -webkit-text-size-adjust: 100%;
   }
@@ -145,16 +145,6 @@
     margin-block: -0.07em;
   }
 
-  .line-mask > .line {
-    animation: line-rise 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: var(--reveal-delay, 0ms);
-    will-change: transform;
-  }
-
-  .reveal {
-    animation: fade-up 1s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: var(--reveal-delay, 0ms);
-  }
 
   /* Restrained underline for text links */
   .link-line {
@@ -226,6 +216,31 @@
     height: 45%;
     background: var(--color-paper);
     animation: scroll-cue 2.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+
+  .mobile-nav-panel {
+    position: fixed;
+    inset: var(--header-h) 0 0;
+    z-index: 49;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: rgba(5, 5, 5, 0.985);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-0.6rem);
+    transition: opacity 180ms ease, transform 180ms ease, visibility 180ms;
+  }
+
+  .mobile-nav-panel[data-open="true"] {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .form-feedback[data-state="success"] {
+    animation: fade-up 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   /* Film grain */
@@ -345,7 +360,7 @@
     width: min(68vw, 1180px);
     height: 90%;
     transform: translateX(-50%);
-    opacity: 0.92;
+    opacity: var(--scul-opacity, 0.92);
     pointer-events: none;
   }
 
@@ -394,7 +409,7 @@
     max-width: 100%;
     color: #eeeeec;
     font-family: var(--font-display);
-    font-size: clamp(4.2rem, 8.45vw, 8.1rem);
+    font-size: clamp(4.3rem, 8.75vw, 8.45rem);
     font-weight: 650;
     line-height: 0.88;
     letter-spacing: -0.065em;
@@ -412,6 +427,14 @@
     font-weight: 450;
     -webkit-text-stroke: 1px rgba(238, 238, 236, 0.82);
     text-shadow: none;
+  }
+
+  .hero-intro {
+    max-width: 33rem;
+    margin-top: clamp(1.1rem, 2.3vh, 1.7rem);
+    color: rgba(242, 242, 240, 0.72);
+    font-size: clamp(0.8rem, 1.05vw, 0.95rem);
+    line-height: 1.65;
   }
 
   .hero-actions {
@@ -621,7 +644,7 @@
       width: min(76vw, 390px);
       height: 42%;
       transform: translateX(-50%);
-      opacity: 0.72;
+      --scul-opacity: 0.72;
     }
 
     .hero-heading-wrap {
@@ -642,9 +665,15 @@
       -webkit-text-stroke-width: 0.85px;
     }
 
+    .hero-intro {
+      max-width: 29rem;
+      margin-top: 1rem;
+      font-size: 0.82rem;
+    }
+
     .hero-actions {
       gap: 0.6rem;
-      margin-top: 1.6rem;
+      margin-top: 1.35rem;
     }
 
     .hero-actions > a.group {
@@ -743,6 +772,12 @@
     }
   }
 
+  @media (max-width: 360px) {
+    .hero-right-note {
+      display: none;
+    }
+  }
+
   @media (max-height: 700px) and (min-width: 761px) {
     .hero-editorial-title {
       font-size: clamp(4rem, 7.7vw, 7rem);
@@ -784,15 +819,6 @@
   }
 }
 
-@keyframes line-rise {
-  from {
-    transform: translate3d(0, 112%, 0);
-  }
-  to {
-    transform: translate3d(0, 0, 0);
-  }
-}
-
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -804,33 +830,6 @@
   }
 }
 
-/*
- * Scroll-linked reveals.
- * Only active where scroll-driven animations are supported, so the content is
- * always visible in browsers that do not implement them. Reduced motion is
- * left untouched.
- */
-@keyframes scroll-reveal-in {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 28px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .scroll-reveal {
-      animation: scroll-reveal-in linear both;
-      animation-timeline: view();
-      animation-range: entry 4% entry 52%;
-    }
-  }
-}
-
 @keyframes scroll-cue {
   0% {
     transform: translateY(-120%);
@@ -838,6 +837,269 @@
   70%,
   100% {
     transform: translateY(240%);
+  }
+}
+
+/*
+ * Motion system
+ * =============
+ * Three layers, gated so that content is never lost:
+ *  - `html.intro-active` is only added by a blocking script when the intro
+ *    should play this session (sessionStorage + reduced-motion aware).
+ *  - `html.route-armed` is only added after the first page has fully painted,
+ *    so direct loads and refreshes get no curtain, but client navigations do.
+ *  - `html.reveal-ready` is only added by the RevealObserver when
+ *    IntersectionObserver exists and reduced motion is not requested.
+ * Without JavaScript none of these classes exist and every element is visible.
+ */
+
+/* ---- 1. Intro overlay ------------------------------------------------- */
+
+@keyframes intro-meta-in {
+  from {
+    transform: translate3d(0, 120%, 0);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes intro-name-in {
+  from {
+    transform: translate3d(0, 108%, 0);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes intro-rule-in {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes intro-out {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--color-ink);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+html.intro-active .intro-overlay {
+  opacity: 1;
+  visibility: visible;
+  animation: intro-out 0.58s cubic-bezier(0.6, 0.04, 0.2, 1) 1.2s both;
+}
+
+html.intro-active .intro-stage {
+  display: grid;
+  justify-items: center;
+  gap: clamp(0.9rem, 2vh, 1.3rem);
+  text-align: center;
+}
+
+html.intro-active .intro-meta {
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(242, 242, 240, 0.55);
+}
+
+html.intro-active .intro-meta > span {
+  display: block;
+  animation: intro-meta-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+}
+
+html.intro-active .intro-name {
+  overflow: hidden;
+  max-width: 92vw;
+  color: var(--color-paper);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6.5vw, 4.25rem);
+  font-weight: 550;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+}
+
+html.intro-active .intro-name > span {
+  display: block;
+  animation: intro-name-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.42s both;
+}
+
+html.intro-active .intro-rule {
+  width: clamp(4rem, 8vw, 7rem);
+  height: 1px;
+  background: rgba(242, 242, 240, 0.55);
+  transform-origin: center;
+  animation: intro-rule-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.88s both;
+}
+
+/* ---- 2. Page transitions ---------------------------------------------- */
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes curtain-out {
+  from {
+    transform: scaleY(1);
+  }
+
+  to {
+    transform: scaleY(0);
+  }
+}
+
+.page-curtain {
+  display: none;
+}
+
+html.route-armed .route-content > .page-curtain {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: var(--color-ink);
+  transform-origin: top center;
+  pointer-events: none;
+  animation: curtain-out 0.5s cubic-bezier(0.65, 0.05, 0.2, 1) 0.05s both;
+}
+
+html.route-armed .route-content > .route-page {
+  animation: page-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
+}
+
+/* ---- 3. Scroll reveals (IntersectionObserver) ------------------------- */
+
+html.reveal-ready [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 1.4rem, 0);
+  transition-property: opacity, transform;
+  transition-duration: 0.75s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--rd, 0ms);
+  will-change: opacity, transform;
+}
+
+html.reveal-ready [data-reveal="fade"] {
+  transform: none;
+}
+
+html.reveal-ready [data-reveal="scale"] {
+  transform: scale(0.985);
+}
+
+html.reveal-ready [data-reveal="mask"] {
+  opacity: 1;
+  transform: none;
+  overflow: hidden;
+  padding-block: 0.07em;
+  margin-block: -0.07em;
+}
+
+html.reveal-ready [data-reveal="mask"] > .reveal-inner {
+  display: block;
+  transform: translate3d(0, 110%, 0);
+  transition-property: transform;
+  transition-duration: 0.85s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--rd, 0ms);
+  will-change: transform;
+}
+
+html.reveal-ready [data-reveal][data-revealed] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+html.reveal-ready [data-reveal="mask"][data-revealed] > .reveal-inner {
+  transform: none;
+  will-change: auto;
+}
+
+/* ---- 4. Hero + header entrance ---------------------------------------- */
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 2.25rem, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * --hold delays the entrance while the intro overlay is on screen only
+ * (html.intro-active), so the hero surfaces exactly as the overlay wipes
+ * away. Without the intro, --hold is 0 and the entrance starts on paint.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .site-header {
+    animation: hero-fade 0.7s ease calc(100ms + var(--hold, 0ms)) both;
+  }
+
+  html.js .hero-reveal {
+    animation: hero-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--d, 0ms) + var(--hold, 0ms)) both;
+  }
+
+  html.js .hero-reveal-fade {
+    animation: hero-fade 0.9s ease calc(var(--d, 0ms) + var(--hold, 0ms)) both;
+  }
+
+  html.js .hero-sculpture {
+    animation: hero-fade 1.4s ease calc(60ms + var(--hold, 0ms)) both;
+  }
+
+  html.intro-active {
+    --hold: 1250ms;
   }
 }
 
@@ -854,9 +1116,35 @@
     transition-duration: 0.01ms !important;
   }
 
-  .line-mask > .line,
-  .reveal {
+  html.intro-active .intro-overlay,
+  html.trans-armed .route-content > .page-curtain {
+    display: none !important;
+  }
+
+  .intro-meta,
+  .intro-name,
+  .intro-rule,
+  .hero-reveal,
+  .hero-reveal-fade,
+  .hero-sculpture,
+  .line-mask > .line {
     animation: none !important;
+  }
+
+  html.js-reveal [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  html.js-reveal [data-reveal="mask"] > .reveal-inner {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .mobile-nav-panel,
+  .mobile-nav-panel[data-open="true"] {
+    transition: none !important;
+    transform: none;
   }
 
   .scroll-track::after {

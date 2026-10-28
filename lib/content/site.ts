@@ -47,7 +47,7 @@ export const profile = {
     downloadName: "Al-Shahriar-Sowan-Resume.pdf",
   },
   metaDescription:
-    "Al Shahriar Sowan is an independent developer focused on AI tools, websites, and software, building products including SeedCode CLI, SeedCode Chat, and IntLLM."
+    "Al Shahriar Sowan is an independent software developer in Bangladesh, building AI tools, web applications, and software including SeedCode CLI, SeedCode Chat, and IntLLM."
 } as const;
 
 export const navLinks = [
@@ -327,21 +327,21 @@ export type Product = {
 export const products: readonly Product[] = [
   {
     name: "SeedCode CLI", slug: "seedcode-cli", category: "AI Development Tools",
-    description: "An AI-powered command-line coding assistant designed to streamline software development through multiple AI providers, intelligent coding workflows, and developer tools.",
+    description: "A Python terminal coding assistant with Chat and Agent modes. Agent Mode can inspect a project, edit files, run commands, and verify results, with project memory and permission gates around its tools.",
     tags: ["AI", "CLI", "Python", "Developer Tools", "Automation"],
     website: "https://seedcode-cli.vercel.app/", github: "https://github.com/Alshahriar-07/seedcode-cli",
     preview: { src: "/projects/seedcode-cli.webp", alt: "Seed Code CLI installer page with a PowerShell install command and Windows download options", domain: "seedcode-cli.vercel.app" },
   },
   {
     name: "SeedCode Chat", slug: "seedcode-chat", category: "AI Applications",
-    description: "A web-based AI chat platform that provides access to multiple AI models through a clean, user-friendly interface.",
+    description: "A multi-provider AI chat interface with streaming replies, conversation history, model controls, and markdown and code rendering, available as a web app with an Android build.",
     tags: ["AI", "LLM", "Web Application", "Chat"],
     website: "https://seedcode-chat.vercel.app/", github: "https://github.com/Alshahriar-07/seedcode-chat",
     preview: { src: "/projects/seedcode-chat.webp", alt: "Seed Code Chat interface with a sidebar, model selector and empty chat state", domain: "seedcode-chat.vercel.app" },
   },
   {
     name: "SeedCode Chat Android", slug: "seedcode-chat-android", category: "Android Applications",
-    description: "An Android-focused AI chat application designed to bring the SeedCode AI experience to mobile devices.",
+    description: "The Android build of SeedCode Chat, extending the multi-provider AI chat project to mobile devices.",
     tags: ["Android", "AI", "Mobile Application", "LLM"],
     website: "https://seedcode-app.vercel.app/", github: "https://github.com/Alshahriar-07/seedcode-chat",
   },
@@ -353,7 +353,7 @@ export const products: readonly Product[] = [
   },
   {
     name: "IntLLM", slug: "intllm", category: "Artificial Intelligence",
-    description: "An AI and large language model-focused project developed as part of an exploration into AI-powered applications and LLM technology.",
+    description: "A local-first AI runtime built around Ollama, with layered memory, opt-in live retrieval, browser and tool access, and an OpenAI-compatible local API.",
     tags: ["AI", "LLM", "Artificial Intelligence", "Web Application"],
     website: "https://intllm.vercel.app/", github: "https://github.com/Alshahriar-07/INTLLM",
     preview: { src: "/projects/intllm.webp", alt: "IntLLM landing page with local AI headline, download actions and terminal install command", domain: "intllm.vercel.app" },
@@ -366,7 +366,7 @@ export const products: readonly Product[] = [
   },
   {
     name: "Dorkey", slug: "dorkey", category: "Web Applications",
-    description: "An independent web project developed under the Dorkey brand, with its own dedicated online platform.",
+    description: "A browser-based typing test with 15-, 30-, 60-, and 120-second sessions, live WPM, CPM, accuracy and error tracking, and browser-local results.",
     tags: ["Web Application", "Independent Project", "Web Development"],
     website: "https://dorkey.vercel.app/", github: "https://github.com/Alshahriar-07/Dorkey",
     preview: { src: "/projects/dorkey.webp", alt: "Dorkey typing test landing page with a live practice session preview", domain: "dorkey.vercel.app" },
